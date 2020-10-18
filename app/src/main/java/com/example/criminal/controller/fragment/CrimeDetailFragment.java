@@ -69,6 +69,12 @@ public class CrimeDetailFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        updateCrime();
+    }
+
     private void findViews(View view) {
         mTitleField = view.findViewById(R.id.crime_title);
         mDateButton = view.findViewById(R.id.crime_date);
@@ -104,5 +110,9 @@ public class CrimeDetailFragment extends Fragment {
                 mCrime.setSolved(isChecked);
             }
         });
+    }
+
+    private void updateCrime(){
+        mRepository.updateCrime(mCrime);
     }
 }

@@ -28,6 +28,7 @@ public class CrimeListFragment extends Fragment {
     private RecyclerView mRecyclerView;
 
     private IRepository mRepository;
+    private CrimeAdapter mCrimeAdapter;
 
     public static CrimeListFragment newInstance() {
 
@@ -59,7 +60,11 @@ public class CrimeListFragment extends Fragment {
         return view;
     }
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUi();
+    }
 
     private void findViews(View view) {
         mRecyclerView = view.findViewById(R.id.recycler_view_crime_list);
@@ -69,10 +74,18 @@ public class CrimeListFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
 
-        List<Crime> crimes = mRepository.getCrimes();
-        CrimeAdapter crimeAdapter = new CrimeAdapter(crimes);
+        updateUi();
+    }
 
-        mRecyclerView.setAdapter(crimeAdapter);
+    private void updateUi() {
+        List<Crime> crimes = mRepository.getCrimes();
+        if (mCrimeAdapter == null) {
+            CrimeAdapter crimeAdapter = new CrimeAdapter(crimes);
+
+            mRecyclerView.setAdapter(crimeAdapter);
+        }else {
+            mCrimeAdapter.notifyDataSetChanged();
+        }
     }
 
     private class CrimeHolder extends RecyclerView.ViewHolder{

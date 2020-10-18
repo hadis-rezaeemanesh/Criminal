@@ -40,4 +40,5 @@ public class CrimeDetailActivity extends SingleFragmentActivity {
        CrimeDetailFragment crimeDetailFragment = CrimeDetailFragment.newInstance(crimeId);
         return crimeDetailFragment;
     }
+
 }
