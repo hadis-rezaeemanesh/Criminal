@@ -1,9 +1,8 @@
 package com.example.criminal.controller.fragment;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -14,17 +13,20 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import com.example.criminal.R;
-import com.example.criminal.controller.activity.CrimeDetailActivity;
-import com.example.criminal.controller.activity.CrimeListActivity;
 import com.example.criminal.model.Crime;
 import com.example.criminal.repository.CrimeRepository;
 import com.example.criminal.repository.IRepository;
 
+import java.util.Date;
 import java.util.UUID;
-import java.util.zip.CRC32;
 
 public class CrimeDetailFragment extends Fragment {
+    public static final String FRAGMENT_TAG_DATE_PICKER = "DatePicker";
+    public static final int REQUEST_CODE_DATE_PICKER = 0;
     private EditText mTitleField;
     private Button mDateButton;
     private CheckBox mSolvedCheckBox;
@@ -53,7 +55,7 @@ public class CrimeDetailFragment extends Fragment {
 
 //        UUID id = (UUID) getActivity().getIntent().getSerializableExtra(CrimeDetailActivity.EXTRA_CRIME_ID);
 
-        UUID crimeId = (UUID) getArguments().getSerializable(CrimeDetailActivity.ARGS_CRIME_ID);
+        UUID crimeId = (UUID) getArguments().getSerializable(ARGS_CRIME_ID);
         mCrime = mRepository.getCrime(crimeId);
     }
 
@@ -75,6 +77,18 @@ public class CrimeDetailFragment extends Fragment {
         updateCrime();
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode != Activity.RESULT_OK && data == null){
+            return;
+        }
+        if (requestCode == REQUEST_CODE_DATE_PICKER){
+            Date userSelectedDate =
+                    (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_USER_SELECTED_DATE);
+            updateCrimeDate(userSelectedDate);
+        }
+    }
+
     private void findViews(View view) {
         mTitleField = view.findViewById(R.id.crime_title);
         mDateButton = view.findViewById(R.id.crime_date);
@@ -84,7 +98,6 @@ public class CrimeDetailFragment extends Fragment {
         mTitleField.setText(mCrime.getTitle());
         mSolvedCheckBox.setChecked(mCrime.isSolved());
         mDateButton.setText(mCrime.getDate().toString());
-        mDateButton.setEnabled(false);
     }
 
     private void setListeners(){
@@ -110,9 +123,29 @@ public class CrimeDetailFragment extends Fragment {
                 mCrime.setSolved(isChecked);
             }
         });
+
+        mDateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DatePickerFragment datePickerFragment = DatePickerFragment.newInstance(mCrime.getDate());
+                // create parent-child relation
+                datePickerFragment.setTargetFragment(
+                        CrimeDetailFragment.this,
+                        REQUEST_CODE_DATE_PICKER);
+                datePickerFragment.show(getActivity().getSupportFragmentManager(),
+                        FRAGMENT_TAG_DATE_PICKER);
+            }
+        });
     }
 
     private void updateCrime(){
         mRepository.updateCrime(mCrime);
+    }
+
+    private void updateCrimeDate(Date userSelectedDate){
+        mCrime.setDate(userSelectedDate);
+        updateCrime();
+
+        mDateButton.setText(mCrime.getDate().toString());
     }
 }

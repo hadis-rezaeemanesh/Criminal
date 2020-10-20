@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.criminal.R;
-import com.example.criminal.controller.activity.CrimeDetailActivity;
 import com.example.criminal.controller.activity.CrimePagerActivity;
 import com.example.criminal.model.Crime;
 import com.example.criminal.repository.CrimeRepository;
